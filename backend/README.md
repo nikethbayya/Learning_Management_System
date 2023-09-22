@@ -13,6 +13,12 @@ pip install -r requirements.txt
 flask run --debug -p 8080
 ```
 
+## Production
+
+```
+gunicorn -w 4 'app:app'
+```
+
 ## References
 
 https://medium.com/@anubabajide/rest-api-authentication-in-flask-481518a7479b

@@ -11,20 +11,15 @@ import jwt
 
 from flask_cors import CORS
 
-print(jwt)
-
 app = Flask(__name__)
 CORS(app)
 app.config.from_object(Configuration)
-app.config['CORS_ALLOWED_ORIGINS'] = ['http://localhost:3000']
 
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 auth = HTTPBasicAuth()
-
-print(Configuration.SQLALCHEMY_DATABASE_URI)
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -114,7 +109,3 @@ def resetdb_command():
     print('Creating tables.')
     db.create_all()
     print('Shiny!')
-
-
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True)
