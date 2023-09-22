@@ -17,6 +17,8 @@ flask run --debug -p 8080
 
 ```
 gunicorn -w 4 'app:app'
+# Run in background
+gunicorn -w 4 'app:app' --daemon
 ```
 
 ## References
