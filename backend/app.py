@@ -39,7 +39,6 @@ class User(db.Model):
         return check_password_hash(self.password_hash, password)
     
     def generate_auth_token(self, expires_in = 600):
-        print(jwt)
         return jwt.encode(
             { 'id': self.id, 'exp': time.time() + expires_in }, 
             app.config['SECRET_KEY'], algorithm='HS256')
@@ -57,11 +56,9 @@ class User(db.Model):
 def verify_password(username_or_token, password):
     # first try token
     user = User.verify_auth_token(username_or_token)
-    print("not token")
     # then check for username and password pair
     if not user:
         user = User.query.filter_by(username = username_or_token).first()
-        print("user", user)
         if not user or not user.verify_password(password):
             return False
     g.user = user
