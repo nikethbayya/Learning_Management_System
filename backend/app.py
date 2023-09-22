@@ -17,7 +17,7 @@ app = Flask(__name__)
 app.wsgi_app = ProxyFix(
     app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
 )
-CORS(app)
+cors = CORS(app, resources={r"/api/*": {"origins": "http://134.209.174.81/"}})
 app.config.from_object(Configuration)
 
 
