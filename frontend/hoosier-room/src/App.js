@@ -2,9 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import "./App.css";
 
-const axiosBaseURL = axios.create({
-  baseURL: "http://127.0.0.1:5000",
-});
+axios.defaults.baseURL = process.env.REACT_APP_BASE_URL;
 
 function App() {
   // React States
@@ -18,7 +16,7 @@ function App() {
     event.preventDefault();
     console.log(username, password);
 
-    axiosBaseURL
+    axios
       .get("/api/login", {
         auth: {
           username: username,
