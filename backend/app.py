@@ -1,29 +1,35 @@
 import json
 from config import Configuration
+
+
+# Libraries
 from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 from datetime import datetime, timedelta, timezone
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity
 from flask_jwt_extended import unset_jwt_cookies, jwt_required, JWTManager
+from flask_sqlalchemy import SQLAlchemy
 
-
-api = Flask(__name__)
-api.config.from_object(Configuration)
-api.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
-
-api.wsgi_app = ProxyFix(
-    api.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
+app = Flask(__name__)
+app.config.from_object(Configuration)
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+app.wsgi_app = ProxyFix(
+    app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1
 )
-cors = CORS(api, origins=[api.config["CROSS_ORIGIN_URL"]])
+cors = CORS(app, origins=[app.config["CROSS_ORIGIN_URL"]])
+db = SQLAlchemy(app)
+jwt = JWTManager(app)
 
-jwt = JWTManager(api)
 
-@api.route('/')
+from models import User
+
+@app.route('/')
 def hello():
-    return make_response('Server is running...', 200)
+    return make_response(jsonify({"status": "RUNNING"}), 200)
 
-@api.after_request
+
+@app.after_request
 def refresh_expiring_jwts(response):
     try:
         exp_timestamp = get_jwt()["exp"]
@@ -41,18 +47,17 @@ def refresh_expiring_jwts(response):
         return response
 
 
-@api.route('/login', methods=["POST"])
+@app.route('/login', methods=["POST"])
 def create_token():
     email = request.json.get("email", None)
     password = request.json.get("password", None)
 
-    #Handle Missing email or password
+    # Handle Missing email or password
 
     if email == "" or password == "":
         return {"msg": "Please verify email and password fields."}, 401
 
-    
-    #ToDo: Check user data against db
+    # ToDo: Check user data against db
 
     if email != "test" or password != "test":
         return {"msg": "Wrong email or password"}, 401
@@ -62,18 +67,17 @@ def create_token():
     return response
 
 
-
-
-@api.route("/resetPassword", methods=["POST"])
+@app.route("/resetPassword", methods=["POST"])
 def resetPassword():
     data = request.json
     email = data["email"]
 
-    #ToDo Send Email to Update Password
-    #ToDo Update Password in Database
-    #Should I be recieving a secret question response?
+    # ToDo Send Email to Update Password
+    # ToDo Update Password in Database
+    # Should I be recieving a secret question response?
 
-@api.route("/register", methods=["POST"])
+
+@app.route("/register", methods=["POST"])
 def register():
     data = request.json
     email = data["email"]
@@ -84,38 +88,64 @@ def register():
     secQuestion = data["secQuestion"]
     secAnswer = data["secAnswer"]
 
-    expected_keys = ["email", "password", "password2", "firstName", "lastName", "secQuestion", "secAnswer"]
+    expected_keys = ["email", "password", "password2",
+                     "firstName", "lastName", "secQuestion", "secAnswer"]
 
     # Handle Missing Fields
     if any(key not in data or data[key] == "" for key in expected_keys):
         return {"msg": "Please enter all fields."}, 401
 
-    #Handle Mismatched Passwords
+    # Handle Mismatched Passwords
     if password != password2:
-        return {"msg": "Please verify that your passwords match."}, 401
-    
-    #ToDo: Add User Data to db
+        return make_response({"msg": "Please verify that your passwords match."}, 401)
 
-@api.route("/profile", methods=["GET"])
+    db.session.add(
+        User(
+            email=email, 
+            password=password, 
+            firstName=firstName,
+            lastName=lastName,
+            secQuestion=secQuestion,
+            secAnswer=secAnswer
+        )
+    )
+    db.session.commit()
+
+    return make_response({"msg": "user created"}, 200)
+
+
+@app.route("/profile", methods=["GET"])
 @jwt_required()
 def profile():
     data = request.json
     email = data["email"]
 
-    #Handle No Email
+    # Handle No Email
     if email == "":
-        return {"msg": "Please verify that your passwords match."}, 401
-    
-    #ToDo Pull UserData from DataBase
+        return make_response({"msg": "Please verify that your passwords match."}, 401)
+
+    # ToDo Pull UserData from DataBase
 
 
-@api.route("/logout", methods=["POST"])
+@app.route("/logout", methods=["POST"])
 @jwt_required()
 def logout():
     response = jsonify({"msg": "logout successful"})
     unset_jwt_cookies(response)
     return response
-    
 
 
-    
+@app.cli.command('resetdb')
+def resetdb_command():
+    """Destroys and creates the database + tables."""
+    DB_URL = Configuration.SQLALCHEMY_DATABASE_URI
+    from sqlalchemy_utils import database_exists, create_database, drop_database
+    if database_exists(DB_URL):
+        print('Deleting database.')
+        drop_database(DB_URL)
+    if not database_exists(DB_URL):
+        print('Creating database.')
+        create_database(DB_URL)
+    print('Creating tables.')
+    db.create_all()
+    print('Shiny!')

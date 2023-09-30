@@ -30,7 +30,7 @@ python -c 'import secrets; print(secrets.token_hex())'
 
 ### Start development server
 ```
-flask --app api run --debug -p 8000
+flask run --debug -p 8000
 ```
 
 ### Test
