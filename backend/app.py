@@ -35,7 +35,7 @@ from models import User, PasswordRecovery
 
 
 
-# Google oauth
+Google oauth
 client_secrets_file = os.path.join(
     pathlib.Path(__file__).parent, "client_secret.json")
 flow = Flow.from_client_secrets_file(
@@ -274,6 +274,16 @@ def logout():
     response = jsonify({"msg": "logout successful"})
     unset_jwt_cookies(response)
     return make_response(response, 200)
+
+@app.route("/getAnnouncements", methods=["GET"])
+@jwt_required()
+def getAnnouncements():
+    data = request.json
+    courseID = data["courseID"]
+    announcements = Announcements.query.filter_by(courseID=courseID).all()
+    response = announcements.jsonify()
+    return make_response(response, 200)
+    
 
 def send_mail(toMail, subject, body):
     print('mail sent')

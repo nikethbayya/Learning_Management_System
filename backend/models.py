@@ -22,3 +22,10 @@ class PasswordRecovery(db.Model):
     email = db.Column(db.String(120), unique=True, primary_key = True)
     token = db.Column(db.Text)
 
+#announcements table
+#Primary key is courseID from courses table
+class Announcements(db.Model):
+    __tablename__ = 'announcements'
+    courseID = db.Column(db.String(50), unique=True, primary_key = True)
+    title = db.Column(db.String(50))
+    description = db.Column(db.String(500))
