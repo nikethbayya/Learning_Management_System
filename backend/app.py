@@ -31,7 +31,7 @@ jwt = JWTManager(app)
 db = SQLAlchemy(app)
 mail = Mail(app)
 
-from models import User, PasswordRecovery
+from models import User, PasswordRecovery, Announcements
 
 
 
@@ -275,6 +275,7 @@ def logout():
     unset_jwt_cookies(response)
     return make_response(response, 200)
 
+#accepts: (courseID : id of course requesting announcement) -> returns all announcements for the course
 @app.route("/getAnnouncements", methods=["GET"])
 @jwt_required()
 def getAnnouncements():
@@ -283,7 +284,24 @@ def getAnnouncements():
     announcements = Announcements.query.filter_by(courseID=courseID).all()
     response = announcements.jsonify()
     return make_response(response, 200)
-    
+
+# accepts: (courseID : id of course making the announcement for, 
+                #title: title of the announcement,
+                #body: body of the announcement) -> creates a new announcement and returuns the announcement
+
+# need to add: check role to ensure that user has permission to make an announcement
+@app.route("/makeAnnouncement", methods=["POST"])
+@jwt_required()
+def makeAnnouncement():
+    data = request.json
+    courseID = data["courseID"]
+    title = data["title"]
+    body = data["body"]
+    announcement = Announcements(courseID=courseID, title=title, body=body)
+    db.session.add(announcement)
+    db.session.commit()
+    response = announcement.jsonify()
+    return make_response(response, 200)
 
 def send_mail(toMail, subject, body):
     print('mail sent')
