@@ -5,6 +5,7 @@ import ForgotPassword from "./Pages/ForgotPasswordPage/ForgotPasswordPage";
 import ChangePassword from  "./Pages/ChangePassword"
 import HomePage from "./Pages/HomePage";
 import axios from "axios"
+import AdminDashboard from "./Pages/AdminDashboard";
 import LoggedIn from './components/LoggedIn'
 
 import '@fontsource/roboto/300.css';
@@ -24,6 +25,7 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path = "/resetpassword" element = {<ChangePassword />} />
+        <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
     </Router>
   );
