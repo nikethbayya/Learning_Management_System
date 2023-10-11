@@ -12,10 +12,11 @@ export default function AdminDashboard() {
   return (
     
 
-    <div className ="admin-dashboard">
+    <div>
         <AppHeader />
         <br></br>
-        <div className="data-view">
+        <h1>Hello World</h1>
+        <div className="page-container">
         <button>Users</button>
         <button>Courses</button>
         </div>
