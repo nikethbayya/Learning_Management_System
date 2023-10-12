@@ -23,6 +23,10 @@ export default function AdminDashboard() {
   const prompt_user_delete = (id) => {
     const answer = window.confirm("Are you sure you want to delete user " + id + "?");
   }
+  const handleAddCourse = (e) => {
+    e.preventDefault();
+    console.log("success");
+  }
   if (state === 1) {
   return (
     
@@ -52,9 +56,8 @@ export default function AdminDashboard() {
             </tr>
           ))}
 
-
         </table>
-
+            <button>Add Student</button>
         </div>
     </div>
   );
@@ -85,7 +88,16 @@ export default function AdminDashboard() {
       
       
               </table>
-                
+                <button onClick={() => document.getElementById("addc").hidden = false}>Add Course</button>
+                <form id = "addc" hidden={true} method = "POST" onSubmit={handleAddCourse}>
+                  <label>Course Name</label>
+                  <input type = "text" name = "course_name"/>
+                  <label >Course Number</label>
+                  <input type = "text" name = "course_number"/>
+                  <label >Instructor</label>
+                  <input type = "text" name = "instructor"/>
+                  <input type = "submit" value = "Submit"/>
+                </form>
               </div>
           </div>
             );
