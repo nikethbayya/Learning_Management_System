@@ -4,6 +4,7 @@ import "./AdminDashboard.css";
 import AppHeader from "../components/AppHeader";
 import { useSelector} from 'react-redux'
 import { useState } from "react";
+import axios from "axios";
 import Login from "../components/Login";
 import Welcome from "../components/Welcome";
 
@@ -11,9 +12,25 @@ export default function AdminDashboard() {
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn)
   const userInfo = useSelector((state) => state.user.userInfo)
 
-  const usersTable = [[0, 'ndvanbur@iu.edu', 'Nicholas', 'Van Burk', 'admin'],[1,'jason@iu.edu', 'Jason', 'Radno', 'student'], [2, 'blahberson@fake.edu', 'Blabber', 'McBlabberson', 'teacher']];
-  const coursesTable = [[0, 'algorithm design', '32saf', 'professor'], [1, 'underwater basket weaving', '3rjefldaj', 'Curious George']];
+  let usersTable = [[0, 'ndvanbur@iu.edu', 'Nicholas', 'Van Burk', 'admin'],[1,'jason@iu.edu', 'Jason', 'Radno', 'student'], [2, 'blahberson@fake.edu', 'Blabber', 'McBlabberson', 'teacher']];
+  let [coursesTable, updateCourses] = useState([]);
+  axios.get('http://localhost:8000/getAllCourses', {
+    headers: {
+      Authorization: 'Bearer ' + localStorage.getItem('hoosier_room_token')
+    }
+  }).then((response) => {
+     let courses = response.data.courses;
+     let newTable = [];
+     for(const [key,value] of Object.entries(courses)){
+      newTable.push([value.id, value.description, value.courseNumber, value.instructor]);
+     }
+     updateCourses(newTable);
+}).catch(err => {
+  console.log("error getting courses")
+})
+
   const [state, setState] = useState(1);
+
   function displayView(){
     setState(state * -1);
   }
