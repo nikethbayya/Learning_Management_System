@@ -13,6 +13,7 @@ from flask_jwt_extended import unset_jwt_cookies, jwt_required, JWTManager
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash
 from functools import wraps
+from enum import Enum 
 
 import google
 from google.oauth2 import id_token
@@ -32,22 +33,22 @@ jwt = JWTManager(app)
 db = SQLAlchemy(app)
 mail = Mail(app)
 
-from models import User, PasswordRecovery, Enrollment, Courses
+from models import User, PasswordRecovery, Enrollment, Courses, UserRole
 
 
 
-# Google oauth
-client_secrets_file = os.path.join(
-    pathlib.Path(__file__).parent, "client_secret.json")
-flow = Flow.from_client_secrets_file(
-    client_secrets_file=client_secrets_file,
-    scopes=[
-        "https://www.googleapis.com/auth/userinfo.profile",
-        "https://www.googleapis.com/auth/userinfo.email",
-        "openid",
-    ],
-    redirect_uri=Configuration.BACKEND_URL+"/auth/callback",
-)
+# # Google oauth
+# client_secrets_file = os.path.join(
+#     pathlib.Path(__file__).parent, "client_secret.json")
+# flow = Flow.from_client_secrets_file(
+#     client_secrets_file=client_secrets_file,
+#     scopes=[
+#         "https://www.googleapis.com/auth/userinfo.profile",
+#         "https://www.googleapis.com/auth/userinfo.email",
+#         "openid",
+#     ],
+#     redirect_uri=Configuration.BACKEND_URL+"/auth/callback",
+# )
 
 @jwt_required()
 def role_required(allowed_roles):
@@ -223,6 +224,29 @@ def get_course_info():
 
     return make_response(jsonify(response), 200)
 
+#returns all courses in school's system for admin view
+@app.route('/getAllCourses', methods=['GET'])
+@jwt_required()
+def getAllCourses():
+    email = get_jwt_identity()
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return make_response(jsonify(msg="user not found"), 401)
+    
+    userID = user.id
+    userRole = user.role
+    print(userRole)
+    if(userRole != UserRole.ADMIN):
+        return make_response(jsonify(msg="user not authorized"), 403)
+    courses = Courses.query.all()
+    tosend = {}
+    for course in courses:
+        tosend[course.id] = {"id":course.id,"description" : course.description,"courseNumber" : course.courseNumber, "instructor": course.instructor}
+        
+        
+    return make_response(jsonify({"courses" : tosend}), 200)
+    
+    
 @app.route('/deleteCourse', methods=["DELETE"])
 #@role_required(["Admin"]) 
 @jwt_required()
