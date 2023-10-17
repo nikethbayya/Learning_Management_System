@@ -223,7 +223,30 @@ def get_course_info():
 }
 
     return make_response(jsonify(response), 200)
-
+@app.route("/getAllUsers", methods=["GET"])
+@jwt_required()
+def getAllUsers():
+    email = get_jwt_identity()
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return make_response(jsonify(msg="access denied"), 403)
+    userRole = user.role
+    if(userRole != UserRole.ADMIN):
+        return make_response(jsonify(msg="user not authorized to retrieve this resource"), 403)
+    users = User.query.all()
+    userTable = {}
+    loadIndex = 0
+    for user in users:
+        userTable[loadIndex] = {
+            "id": user.id,
+            "email": user.email,
+            "firstName": user.firstName,
+            "lastName": user.lastName,
+            "role": user.role.value
+        }
+        loadIndex += 1
+    return make_response(jsonify({"userTable" :userTable}), 200)    
+    
 #returns all courses in school's system for admin view
 @app.route('/getAllCourses', methods=['GET'])
 @jwt_required()
