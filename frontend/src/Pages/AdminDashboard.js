@@ -12,8 +12,9 @@ export default function AdminDashboard() {
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn)
   const userInfo = useSelector((state) => state.user.userInfo)
 
-  let usersTable = [[0, 'ndvanbur@iu.edu', 'Nicholas', 'Van Burk', 'admin'],[1,'jason@iu.edu', 'Jason', 'Radno', 'student'], [2, 'blahberson@fake.edu', 'Blabber', 'McBlabberson', 'teacher']];
+  
   let [coursesTable, updateCourses] = useState([]);
+  let loadCourses = () => {
   axios.get('http://localhost:8000/getAllCourses', {
     headers: {
       Authorization: 'Bearer ' + localStorage.getItem('hoosier_room_token')
@@ -28,7 +29,27 @@ export default function AdminDashboard() {
 }).catch(err => {
   console.log("error getting courses")
 })
-
+  }
+let [userTable, updateUsers] = useState([]);
+let loadUsers = () =>{
+  axios.get('http://localhost:8000/getAllUsers', {
+    headers: {
+      Authorization: 'Bearer ' + localStorage.getItem('hoosier_room_token')
+    }
+  }).then((response) => {
+    let users = response.data.userTable;
+    let newTable = [];
+    for(const [key,value] of Object.entries(users)){
+      newTable.push([value.id, value.email, value.firstName, value.lastName, value.role]);
+    }
+    updateUsers(newTable);
+    
+  }).catch(err => {
+  console.log("error getting courses")
+  })
+}
+if(userTable.length == 0){loadUsers()}
+if(coursesTable.length == 0){loadCourses()}
   const [state, setState] = useState(1);
 
   function displayView(){
@@ -62,7 +83,7 @@ export default function AdminDashboard() {
             <th>Role</th>
             <th>Delete User?</th>
           </tr>
-          {usersTable.map((user) => (
+          {userTable.map((user) => (
             <tr>
               <td>{user[0]}</td>
               <td>{user[1]}</td>
