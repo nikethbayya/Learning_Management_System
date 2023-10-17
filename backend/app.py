@@ -268,8 +268,29 @@ def getAllCourses():
         
         
     return make_response(jsonify({"courses" : tosend}), 200)
-    
-    
+@app.route("/adminAddCourse", methods=["POST"])
+@jwt_required()
+def adminAddCourse():
+    failed=False
+    msg = "Course added successfully"
+    try:
+        courseToAdd = request.get_json()['course']
+        newCourse = Courses(
+            id=int(courseToAdd['courseID']),
+            description = courseToAdd['course_name'],
+            courseNumber = courseToAdd['course_number'],
+            instructor = courseToAdd['instructor']
+            )
+        db.session.add(newCourse)
+        db.session.commit()
+    except Exception as e:
+        #log your exception in the way you want -> log to file, log as error with default logging, send by email. It's upon you
+        db.session.rollback()
+        db.session.flush() # for resetting non-commited .add()
+        failed=True
+    if failed: msg = "Failed to add course"
+    return make_response(jsonify({"msg": msg}), 200)
+
 @app.route('/deleteCourse', methods=["DELETE"])
 #@role_required(["Admin"]) 
 @jwt_required()
