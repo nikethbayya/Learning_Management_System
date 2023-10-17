@@ -63,8 +63,34 @@ if(coursesTable.length == 0){loadCourses()}
   }
   const handleAddCourse = (e) => {
     e.preventDefault();
-    console.log("success");
+    const courseID = document.getElementById("courseID").value;
+    const course_number = document.getElementById("course_number").value;
+    const instructor = document.getElementById("instructor").value;
+    const course_name = document.getElementById("course_name").value
+    axios.post('http://localhost:8000/adminAddCourse', {
+      course: {
+        "courseID" : courseID,
+        "course_name": course_name,
+        "course_number" : course_number,
+        "instructor" : instructor
+      }
+    },{
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem('hoosier_room_token')
+      }
+    
+    }).then(response => {
+      console.log("success")
+      loadCourses();
+      document.getElementById('messg').innerHTML = response.data.msg
+
+    }).catch(err => {
+      console.log("error adding course")
+    })
   }
+    
+    
+  
   if (state === 1) {
   return (
     
@@ -127,13 +153,16 @@ if(coursesTable.length == 0){loadCourses()}
       
               </table>
                 <button onClick={() => document.getElementById("addc").hidden = false}>Add Course</button>
+                <p id="messg" ></p>
                 <form id = "addc" hidden={true} method = "POST" onSubmit={handleAddCourse}>
+                  <label>ID</label>
+                  <input type = "number" id="courseID" name="courseID"></input>
                   <label>Course Name</label>
-                  <input type = "text" name = "course_name"/>
+                  <input type = "text" id="course_name" name = "course_name"/>
                   <label >Course Number</label>
-                  <input type = "text" name = "course_number"/>
+                  <input id="course_number" type = "text" name = "course_number"/>
                   <label >Instructor</label>
-                  <input type = "text" name = "instructor"/>
+                  <input id = "instructor" type = "text" name = "instructor"/>
                   <input type = "submit" value = "Submit"/>
                 </form>
               </div>
