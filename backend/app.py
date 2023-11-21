@@ -57,6 +57,10 @@ from blueprints.chat import chat as chat_blueprint
 
 app.register_blueprint(chat_blueprint)
 
+from blueprints.assignments import assignments as assignment_blueprint
+
+app.register_blueprint(assignment_blueprint)
+
 @app.route('/')
 def hello():
     return make_response({"status": "RUNNING"}, 200)
