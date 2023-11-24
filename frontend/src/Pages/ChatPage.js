@@ -29,9 +29,6 @@ function ChatPage() {
   const [chatHeader, setChatHeader] = useState({})
   const [chatConversation, setChatConversation] = useState([])
 
-  const roboIco =
-    "https://gravatar.com/avatar/e667ebe7cfdae109d94f42b9f090f582?s=400&d=robohash&r=x";
-
   useEffect(() => {
     axios
     .get('/chatRooms/all')
@@ -137,7 +134,6 @@ function ChatPage() {
         <ChatContainer>
           <ConversationHeader>
             <ConversationHeader.Back />
-            <Avatar src={roboIco} name={chatHeader.name} />
             <ConversationHeader.Content
               userName={chatHeader.name}
               info={chatHeader.info}

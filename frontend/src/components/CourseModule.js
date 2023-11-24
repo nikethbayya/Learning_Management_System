@@ -43,10 +43,10 @@ function CourseModule() {
           {createModeLabel}
         </Button>
       )}
-      <Grid container spacing={3} style={{ margin: "auto" }}>
+      <Grid container spacing={1} style={{ margin: "auto" }}>
         <Grid
           item
-          xs={12}
+          xs={4}
           style={{ margin: "auto", display: isCreateMode ? "none" : "block" }}
         >
           {courseModules.length === 0 && <div>No modules</div>}
@@ -66,6 +66,13 @@ function CourseModule() {
               </List>
             </div>
           )}
+        </Grid>
+        <Grid
+          item
+          xs={8}
+          style={{ margin: "auto", display: isCreateMode ? "none" : "block" }}
+        >
+          Module content
         </Grid>
         <Grid
           item

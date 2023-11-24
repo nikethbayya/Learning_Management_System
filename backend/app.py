@@ -128,21 +128,21 @@ def handle_send_message(data):
 @jwt_required()
 def on_connect():
     email = get_jwt_identity()
+    print('Connected', email)
     user = User.query.filter_by(email=email).first()
     # Join all the course rooms
     enrollments = ChatRoomEnrollment.query.filter_by(user_id=user.id).all()
     for e in enrollments:
-        print('room_' + str(e.room.id))
         join_room('room_' + str(e.room.id))
-    print('Connected', email)
+    
 
 @socketio.on('disconnect')
 @jwt_required()
 def on_disconnect():
     email = get_jwt_identity()
+    print('Disconnected', email)
     user = User.query.filter_by(email=email).first()
     # Leave all the course rooms
     rooms = ChatRoomEnrollment.query.filter_by(user_id=user.id).all()
     for room in rooms:
         leave_room('room_' + str(room.id))
-    print('Client disconnected', email)

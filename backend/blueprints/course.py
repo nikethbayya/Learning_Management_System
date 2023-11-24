@@ -19,7 +19,6 @@ course = Blueprint('course', __name__)
 @course.route('/courseDetails/<course_id>')
 @jwt_required()
 def get_course_details(course_id):
-    print(course_id)
     course = Courses.query.filter_by(id=course_id).first()
     if not course:
         make_response(jsonify(courseDetails={}), 404)
